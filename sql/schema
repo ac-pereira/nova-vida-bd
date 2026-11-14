@@ -1,1 +1,128 @@
+/* Nova Vida Seguros: schema do banco
+MySQL 8.0.16+
 
+1. Tabelas independentes
+dados_empresa, dados_usuarios, modelos_plano
+
+2. Tabelas que dependem das anteriores
+cadastros, titulares
+
+3. Tabelas que dependem de status_contratos: 
+dependentes
+
+*/
+
+CREATE DATABASE IF NOT EXISTS nova_vida;
+USE nova_vida;
+
+-- Dados de empresa
+
+CREATE TABLE dados_empresa (
+    id_empresa INT AUTO_INCREMENT PRIMARY KEY,
+    razao_social VARCHAR(150) NOT NULL,
+    nome_fantasia VARCHAR(100),
+    
+    cnpj CHAR(14) NOT NULL UNIQUE,
+    inscricao_municipal VARCHAR(20),
+    inscricao_estadual VARCHAR(20),
+    regime_tributario VARCHAR(30),
+    
+    endereco VARCHAR(200) NOT NULL,
+    cidade VARCHAR(60) NOT NULL,
+    uf CHAR(2) NOT NULL,
+    cep CHAR(8) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20) NOT NULL
+);
+
+-- Dados dos Usuários
+
+CREATE TABLE dados_usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nome_usuario VARCHAR(100) NOT NULL,
+    status_usuario ENUM ('ATIVO','INATIVO') NOT NULL,
+    role_usuario ENUM ('DIREÇÃO','ADMINISTRAÇÃO','VENDAS','ATENDIMENTO') NOT NULL,
+    data_criacao_usu DATE NOT NULL,
+    data_inativ DATE
+);
+
+-- Listagem de modelos de plano e suas especificações
+
+CREATE TABLE modelos_plano (
+    id_modelos_plano INT AUTO_INCREMENT PRIMARY KEY,
+    nome_plano ENUM ('PRATA','OURO','DIAMANTE') NOT NULL,
+    carencia_dias SMALLINT NOT NULL,
+    vigencia_anos TINYINT NOT NULL,
+
+    UNIQUE (nome_plano, vigencia_anos),
+    CHECK (vigencia_anos IN (2, 4))
+
+);
+
+-- Contém dados principais de status dos planos e vendas
+
+CREATE TABLE cadastros (
+    id_cadastro INT AUTO_INCREMENT PRIMARY KEY,
+
+    id_usuario_cadastro INT NOT NULL, -- quem registrou o contrato no sistema
+    id_vendedor INT NOT NULL, -- quem fez a venda   
+
+    data_venda DATE NOT NULL,
+    id_modelos_plano INT NOT NULL,
+    status_plano ENUM('ATIVO','EM CARÊNCIA','CANCELADO') NOT NULL,
+    n_proposta INT NOT NULL,
+    n_recibo INT,
+
+    contrato_assinado BOOLEAN NOT NULL DEFAULT FALSE, -- vem como falso indicando que não foi assinado
+    data_contrato_assinado DATE,
+
+    termo_sucessor BOOLEAN NOT NULL DEFAULT FALSE, -- vem como falso indicando que documento não foi entregue
+    data_termo_sucessor DATE,
+   
+    irregularidades_docs BOOLEAN NOT NULL DEFAULT FALSE, -- caso tenha alguma irregularidade de documentos que necessite de atenção
+    irregularidades_obs TEXT,
+
+    FOREIGN KEY (id_modelos_plano) REFERENCES modelos_plano(id_modelos_plano),
+    FOREIGN KEY (id_usuario_cadastro) REFERENCES dados_usuarios(id_usuario),
+    FOREIGN KEY (id_vendedor) REFERENCES dados_usuarios(id_usuario)
+);
+
+-- Contém dados dos titulares
+
+CREATE TABLE titulares (
+
+    id_titular INT AUTO_INCREMENT PRIMARY KEY,
+    id_cadastro INT NOT NULL UNIQUE,
+    nome_titular VARCHAR(100) NOT NULL,
+    cpf CHAR(11) NOT NULL UNIQUE,
+    rg VARCHAR(15),
+    data_nasc DATE NOT NULL,
+    telefone_1 VARCHAR (15) NOT NULL,
+    telefone_2 VARCHAR (15),
+    email VARCHAR (100),
+    cep CHAR(8) NOT NULL,
+    logradouro VARCHAR (100) NOT NULL,
+    numero VARCHAR (10) NOT NULL,
+    complemento VARCHAR (100),
+    bairro VARCHAR (100) NOT NULL,
+    cidade VARCHAR (100) NOT NULL,
+    estado CHAR (2) NOT NULL,
+
+    FOREIGN KEY (id_cadastro) REFERENCES cadastros(id_cadastro)
+);
+
+-- Contém dados dos dependentes
+
+CREATE TABLE dependentes (
+    id_cadastro INT NOT NULL,
+    id_dependente INT AUTO_INCREMENT PRIMARY KEY,
+  
+    nome_dependente VARCHAR(100) NOT NULL,
+    data_nasc DATE NOT NULL,
+    tipo_documento ENUM('CPF','RG','CERTIDÃO DE NASCIMENTO','OUTRO') NOT NULL,
+    numero_documento VARCHAR(30) NOT NULL,
+    parentesco ENUM('CÔNJUGE','FILHO(A)','PAI','MÃE','IRMÃO(Ã)','TIO(A)','OUTRO') NOT NULL,
+
+    UNIQUE (id_cadastro, tipo_documento, numero_documento),
+    FOREIGN KEY (id_cadastro) REFERENCES cadastros(id_cadastro)
+);
