@@ -21,19 +21,19 @@ O projeto foi inspirado na minha experiência com cadastros, conferência de doc
 - CNPJ e CPF únicos, e valores de status, perfil, parentesco e tipo de documento restritos por ENUM.
 
 ## Regras de negócio definidas (ainda não aplicadas por restrição)
-Carência: Prata 30 dias, Ouro 60 dias, Diamante 120 dias.
-Diamante tem vigência apenas de 4 anos.
-O titular é o responsável jurídico do contrato: responde por inclusões, exclusões e demais decisões sobre o plano.
+- Carência: Prata 30 dias, Ouro 60 dias, Diamante 120 dias.
+- Diamante tem vigência apenas de 4 anos.
+- O titular é o responsável jurídico do contrato: responde por inclusões, exclusões e demais decisões sobre o plano.
 
 ## Como executar
-Tenha o MySQL 8.0.16+ instalado.
-Clone o repositório
-Execute o script do schema. Ele está todo em um único arquivo, cria o banco nova_vida e todas as tabelas na ordem correta de dependência:
+- Tenha o MySQL 8.0.16+ instalado.
+- Clone o repositório
+- Execute o script do schema. Ele está todo em um único arquivo, cria o banco nova_vida e todas as tabelas na ordem correta de dependência:
 
 ## Próximos passos
-Criar o diagrama entidade-relacionamento (DER)
-Adicionar script com dados fictícios para testes
-Reforçar no banco as regras de carência e vigência do plano Diamante
-Criação das tabelas de pagamento e cobrança
-API REST em Java (Spring Boot)
-Geração de nota fiscal simulada
+- Criar o diagrama entidade-relacionamento (DER)
+- Adicionar script com dados fictícios para testes
+- Reforçar no banco as regras de carência e vigência do plano Diamante
+- Criação das tabelas de pagamento e cobrança
+- API REST em Java (Spring Boot)
+- Geração de nota fiscal simulada
